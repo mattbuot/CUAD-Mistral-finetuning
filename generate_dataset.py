@@ -1,10 +1,10 @@
 import json
 import os
-from enum import Enum
 
 from mistralai import Mistral
 
 import utils
+from mistral_utils import upload_dataset
 
 CATEGORIES_WITH_AT_LEAST_10_PERCENT_LABELS = [
     '"Document Name"',
@@ -22,12 +22,24 @@ CATEGORIES_WITH_AT_LEAST_10_PERCENT_LABELS = [
 
 
 def extract_cuad_qa_data(
-    contract_start_index: int = 0,
-    contract_end_index: int = 510,
+    dataset_selection: utils.DatasetSelection,
     include_empty_labels: bool | None = True,
     contract_character_limit: int = 10_000,
 ) -> dict[str, list[str]]:
     """Extracts question-answer pairs from the CUAD dataset with the associated contract."""
+
+    if dataset_selection == utils.DatasetSelection.TRAIN:
+        contract_start_index = 0
+        contract_end_index = 400
+    elif dataset_selection == utils.DatasetSelection.TEST:
+        contract_start_index = 400
+        contract_end_index = 510
+    else:
+        assert dataset_selection == utils.DatasetSelection.VALIDATION, (
+            f"Invalid dataset selection {dataset_selection}"
+        )
+        contract_start_index = 400
+        contract_end_index = 450
 
     with open("data/CUAD_v1/CUAD_v1.json") as json_file:
         data = json.load(json_file)
@@ -102,38 +114,19 @@ def dump_fine_tuning_dataset(
         )
         examples.append(example)
 
-    jsonl_data = utils.format_conversations_to_fine_tuning_jsonl(examples)
+    lines_data = utils.format_conversations_to_fine_tuning_lines(examples)
+    jsonl_data = utils.list_to_jsonl(lines_data)
     with open(file_name, "w") as f:
         f.write(jsonl_data)
 
     print(f"Fine-tuning dataset saved to {file_name}")
 
 
-class DatasetSelection(str, Enum):
-    TRAIN = "train"
-    TEST = "test"
-    VALIDATION = "validation"
-
-
 if __name__ == "__main__":
-    dataset_selection = DatasetSelection.TRAIN
-
-    if dataset_selection == DatasetSelection.TRAIN:
-        contract_start_index = 0
-        contract_end_index = 400
-    elif dataset_selection == DatasetSelection.TEST:
-        contract_start_index = 400
-        contract_end_index = 510
-    else:
-        assert dataset_selection == DatasetSelection.VALIDATION, (
-            f"Invalid dataset selection {dataset_selection}"
-        )
-        contract_start_index = 400
-        contract_end_index = 450
+    dataset_selection = utils.DatasetSelection.TRAIN
 
     qa_data = extract_cuad_qa_data(
-        contract_start_index=contract_start_index,
-        contract_end_index=contract_end_index,
+        dataset_selection=dataset_selection,
         include_empty_labels=False,
     )
 
@@ -146,11 +139,6 @@ if __name__ == "__main__":
         file_name=file_name,
     )
 
-    print("Uploading dataset to Mistral...")
     api_key = os.environ["MISTRAL_API_KEY"]
     client = Mistral(api_key=api_key)
-    dataset = client.files.upload(file={
-        "file_name": file_name,
-        "content": open(file_name, "rb"),
-    })
-    print(f"Dataset uploaded with ID: {dataset.id}")
+    upload_dataset(client=client, file_name=file_name)
