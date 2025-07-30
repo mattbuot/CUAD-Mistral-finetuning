@@ -16,23 +16,22 @@ def evaluate_predictions(file_name: str):
 
 
 def compute_precision_recall(predictions: list[list[str]], labels: list[list[str]]):
-    assert len(predictions) == len(labels), "Predictions and labels must have the same length."
+    assert len(predictions) == len(labels), (
+        "Predictions and labels must have the same length."
+    )
 
     precision = 0
     recall = 0
 
     for prediction, label in zip(predictions, labels):
         normalized_predictions = [normalize_answer(p) for p in prediction]
-        normalized_labels = [normalize_answer(l) for l in label]
+        normalized_labels = [normalize_answer(_l) for _l in label]
 
         precision += precision_score(normalized_predictions, normalized_labels)
         recall += recall_score(normalized_predictions, normalized_labels)
 
     total = len(predictions)
-    return {
-        "precision": precision / total,
-        "recall": recall / total
-    }
+    return {"precision": precision / total, "recall": recall / total}
 
 
 def precision_score(prediction: list[str], ground_truth: list[str]) -> float:
@@ -41,7 +40,10 @@ def precision_score(prediction: list[str], ground_truth: list[str]) -> float:
     if len(prediction) == 0:
         return 0.0
 
-    precision = sum(metric_max_over_ground_truths(exact_match_score, p, ground_truth) for p in prediction) / len(prediction)
+    precision = sum(
+        metric_max_over_ground_truths(exact_match_score, p, ground_truth)
+        for p in prediction
+    ) / len(prediction)
 
     return precision
 
@@ -51,8 +53,11 @@ def recall_score(prediction, ground_truth):
 
     if len(ground_truth) == 0:
         return 0.0
-    
-    recall = sum(metric_max_over_ground_truths(exact_match_score, p, ground_truth) for p in prediction) / len(ground_truth)
+
+    recall = sum(
+        metric_max_over_ground_truths(exact_match_score, p, ground_truth)
+        for p in prediction
+    ) / len(ground_truth)
 
     return recall
 
@@ -75,18 +80,19 @@ def exact_match_score(prediction, ground_truth):
 
 def normalize_answer(s: str):
     """Normalize answer for comparison (SQuAD-style)
-    
+
     # copied from https://github.com/anishdulal/llm-cuad-eval/blob/main/finetune_evaluate_colab.ipynb
     """
+
     def remove_articles(text):
-        return re.sub(r'\b(a|an|the)\b', ' ', text)
+        return re.sub(r"\b(a|an|the)\b", " ", text)
 
     def white_space_fix(text):
-        return ' '.join(text.split())
+        return " ".join(text.split())
 
     def remove_punc(text):
         exclude = set(string.punctuation)
-        return ''.join(ch for ch in text if ch not in exclude)
+        return "".join(ch for ch in text if ch not in exclude)
 
     def lower(text):
         return text.lower()
@@ -94,7 +100,9 @@ def normalize_answer(s: str):
     return white_space_fix(remove_articles(remove_punc(lower(s))))
 
 
-def read_predictions_and_labels(file_name: str) -> tuple[list[list[str]], list[list[str]]]:
+def read_predictions_and_labels(
+    file_name: str,
+) -> tuple[list[list[str]], list[list[str]]]:
     """Read predictions and labels from a JSONL file."""
     predictions = []
     labels = []
@@ -109,6 +117,5 @@ def read_predictions_and_labels(file_name: str) -> tuple[list[list[str]], list[l
 
 
 if __name__ == "__main__":
-
     file_name = "data/cuad_test_predictions.jsonl"
     evaluate_predictions(file_name=file_name)

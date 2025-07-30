@@ -100,7 +100,7 @@ def dump_fine_tuning_dataset(
     """Generates a fine-tuning dataset in JSONL format for question answering tasks and stores it locally."""
 
     print(f"Generating fine-tuning dataset in {file_name}...")
-    
+
     examples = []
 
     for i, (question_text, context_text, answer) in enumerate(
