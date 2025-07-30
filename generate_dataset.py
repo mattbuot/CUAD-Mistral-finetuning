@@ -23,9 +23,9 @@ CATEGORIES_WITH_AT_LEAST_10_PERCENT_LABELS = [
 
 def extract_cuad_qa_data(
     dataset_selection: utils.DatasetSelection,
-    include_empty_labels: bool | None = True,
+    include_empty_labels: bool | None = None,
     contract_character_limit: int = 10_000,
-) -> dict[str, list[str]]:
+) -> dict[str, list[str | list[str]]]:
     """Extracts question-answer pairs from the CUAD dataset with the associated contract."""
 
     if dataset_selection == utils.DatasetSelection.TRAIN:

@@ -42,7 +42,7 @@ def create_fine_tuning_job(client: Mistral,
     print(f"Fine-tuning job created with ID: {job.id}")
 
 
-def single_inference(client: Mistral, model: str, examples: list[dict[str, str]]) -> list[str]:
+def single_inference(client: Mistral, model: str, examples: list[dict[str, str]]) -> list[list[str]]:
     """Perform inference on a single example using the Mistral client."""
     final_predictions = []
 
@@ -58,7 +58,7 @@ def single_inference(client: Mistral, model: str, examples: list[dict[str, str]]
     return final_predictions
 
 
-def batch_inference(client: Mistral, model: str, examples: list[list[dict[str, str]]]) -> list[str]:
+def batch_inference(client: Mistral, model: str, examples: list[list[dict[str, str]]]) -> list[list[str]]:
     """Run inference in batch mode."""
 
     lines_data = utils.format_conversations_to_inference_lines(examples)

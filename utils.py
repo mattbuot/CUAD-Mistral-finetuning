@@ -98,7 +98,7 @@ def list_to_jsonl(data: list[Any]) -> str:
     return "\n".join(json.dumps(item) for item in data)
 
 
-def parse_batch_results(file_path: str, n_queries: int) -> list[str]:
+def parse_batch_results(file_path: str, n_queries: int) -> list[list[str]]:
     """Parse the batch results from a JSONL file, several cases are handled in case the output is malformed.
     
     Importantly, if a prediction is missing because it errored out in the batch, it will be replaced with an empty list."""
