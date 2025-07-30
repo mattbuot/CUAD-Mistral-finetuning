@@ -13,3 +13,13 @@ Fine tuning Mistral models to solve the Contract Understanding Atticus Dataset (
 
 
 Tested on MacOS using python 3.12
+
+# RESULTS
+
+| model | task | precision | recall |
+|-------|------|-----------|--------|
+| baseline | easy | 50% | 51% |
+| fine-tuned | easy | 89% | 86% |
+| baseline | hard | 16% | 16% |
+| fine-tuned | hard | 29% | 29% |
+
