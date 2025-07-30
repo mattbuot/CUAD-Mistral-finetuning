@@ -11,3 +11,5 @@ Fine tuning Mistral models to solve the Contract Understanding Atticus Dataset (
 6. run_inference.py to generate predictions
 7. evaluate.py to evaluate the results
 
+
+Tested on MacOS using python 3.12
